@@ -2,6 +2,7 @@ package com.project.ezimenu.dtos.DishDTO;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class DishRequestDTO {
@@ -13,4 +14,5 @@ public class DishRequestDTO {
     @NotBlank
     private int dishPrice;
     private String dishStatus;
+    private MultipartFile image;
 }
