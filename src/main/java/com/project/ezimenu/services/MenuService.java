@@ -134,7 +134,6 @@ public class MenuService implements IMenuService {
     private Dish convertToDish(DishRequestDTO dishRequestDTO) {
         Dish dish = new Dish();
         dish.setDishName(dishRequestDTO.getDishName());
-        dish.setDishDescription(dishRequestDTO.getDishDescription());
         dish.setDishPrice(dishRequestDTO.getDishPrice());
         dish.setDishStatus(dishRequestDTO.getDishStatus());
         dish.setMenu(null);
