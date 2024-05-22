@@ -12,7 +12,7 @@ public class DishRequestDTO {
     private Long menuId;
     private String dishDescription;
     @NotBlank
-    private int dishPrice;
-    private String dishStatus;
-    private MultipartFile image;
+    private Integer dishPrice;
+    private Short dishStatus;
+    private MultipartFile thumbnail;
 }

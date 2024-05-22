@@ -11,6 +11,8 @@ import com.project.ezimenu.repositories.MenuRepository;
 import com.project.ezimenu.services.interfaces.IDishService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,19 +23,25 @@ public class DishService implements IDishService {
     @Autowired
     private MenuRepository menuRepository;
     @Autowired
+    private CloudinaryService cloudinaryService;
+    @Autowired
     private ModelMapper modelMapper;
-    public Dish addDish(DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException {
-        if(dishRequestDTO.getDishName() == null || "".equals(dishRequestDTO.getDishName()) || Objects.isNull(dishRequestDTO.getDishPrice()) || Objects.isNull(dishRequestDTO.getMenuId())){
+    public Dish addDish(DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException, IOException {
+        if(dishRequestDTO.getDishName() == null
+                || "".equals(dishRequestDTO.getDishName())
+                || Objects.isNull(dishRequestDTO.getDishPrice())
+                || Objects.isNull(dishRequestDTO.getMenuId())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
         Menu menu = menuRepository.findById(dishRequestDTO.getMenuId())
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + dishRequestDTO.getMenuId()));
+        String thumbnail = cloudinaryService.upload(dishRequestDTO.getThumbnail().getBytes(), dishRequestDTO.getThumbnail().getOriginalFilename(), "thumbnails");
         Dish newDish = new Dish();
         newDish.setMenu(menu);
         newDish.setDishName(dishRequestDTO.getDishName());
         newDish.setDishPrice(dishRequestDTO.getDishPrice());
-        if(dishRequestDTO.getDishDescription() != null) newDish.setDishDescription(dishRequestDTO.getDishDescription());
-        newDish.setDishStatus("Còn món");
+        newDish.setDishStatus(dishRequestDTO.getDishStatus());
+        newDish.setThumbnail(thumbnail);
         menu.getDishes().add(newDish);
         return dishRepository.save(newDish);
     }
@@ -50,7 +58,10 @@ public class DishService implements IDishService {
                 .collect(Collectors.toList());
     }
     public Dish updateDish(Long dishId, DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException {
-        if(dishRequestDTO.getDishName() == null || "".equals(dishRequestDTO.getDishName()) || Objects.isNull(dishRequestDTO.getDishPrice()) || Objects.isNull(dishRequestDTO.getMenuId())){
+        if(dishRequestDTO.getDishName() == null
+                || "".equals(dishRequestDTO.getDishName())
+                || Objects.isNull(dishRequestDTO.getDishPrice())
+                || Objects.isNull(dishRequestDTO.getMenuId())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
         Dish updatedDish = dishRepository.findById(dishId)
@@ -59,7 +70,6 @@ public class DishService implements IDishService {
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + dishRequestDTO.getMenuId()));
         updatedDish.setMenu(menu);
         updatedDish.setDishName(dishRequestDTO.getDishName());
-        updatedDish.setDishDescription(dishRequestDTO.getDishDescription());
         updatedDish.setDishPrice(dishRequestDTO.getDishPrice());
         updatedDish.setDishStatus(dishRequestDTO.getDishStatus());
         return dishRepository.save(updatedDish);

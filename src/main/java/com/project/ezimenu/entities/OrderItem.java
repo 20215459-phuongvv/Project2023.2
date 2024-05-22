@@ -1,5 +1,6 @@
 package com.project.ezimenu.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
@@ -32,6 +33,6 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "orderId")
-    @JsonIgnoreProperties("orderItems")
+    @JsonIgnore
     private Order order;
 }

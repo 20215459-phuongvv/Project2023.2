@@ -11,24 +11,8 @@ public class Constants {
     public static final String LOCAL_HOST = "http://localhost:8080";
     public static final String DEPLOYED = "";
     public static final ResourceBundle messages = ResourceBundle.getBundle("messages");
-
-    public interface RATING {
-        short ONE = 1;
-        short TWO = 2;
-        short THREE = 3;
-        short FOUR = 4;
-        short FIVE = 5;
-    }
     public interface DISH_STATUS {
-        short IN_STOCK = 1;
-        short OUT_OF_STOCK = 0;
-    }
-    public interface DISCOUNT_STATUS {
         short AVAILABLE = 1;
-        short OUT_OF_DATE = 0;
-    }
-    public interface ENTITY_STATUS {
-        short ACTIVE = 1;
-        short INACTIVE = 0;
+        short OUT_OF_DISH = 0;
     }
 }

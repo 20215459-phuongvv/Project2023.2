@@ -1,5 +1,6 @@
 package com.project.ezimenu.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public class Notification {
     private String text;
     @ManyToOne
     @JoinColumn(name = "tableId")
-    @JsonIgnoreProperties("notifications")
+    @JsonIgnore
     private Table table;
 }
 

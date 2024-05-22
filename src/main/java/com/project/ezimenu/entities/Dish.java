@@ -1,5 +1,6 @@
 package com.project.ezimenu.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
@@ -17,17 +18,17 @@ public class Dish {
     @Column(name = "dishName")
     private String dishName;
 
-    @Column(name = "dishDescription")
-    private String dishDescription;
+    @Column(name = "thumbnail")
+    private String thumbnail;
 
     @Column(name = "dishPrice")
     private int dishPrice;
 
     @Column(name = "dishStatus")
-    private String dishStatus;
+    private Short dishStatus;
 
     @ManyToOne
     @JoinColumn(name = "menuId")
-    @JsonIgnoreProperties("dishes")
+    @JsonIgnore
     private Menu menu;
 }
