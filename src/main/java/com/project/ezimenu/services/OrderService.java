@@ -107,6 +107,7 @@ public class OrderService implements IOrderService {
         Order order = table.getOrders().get(table.getOrders().size() - 1);
         order.setOrderTime(LocalDateTime.now());
         order.setOrderStatus("Đang ra món");
+        order.setStatus(Constants.ENTITY_STATUS.ACTIVE);
         order = orderRepository.save(order);
         if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
             List<OrderItem> orderItems = order.getOrderItems()

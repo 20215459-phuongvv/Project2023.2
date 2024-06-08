@@ -161,6 +161,7 @@ public class TableService implements ITableService {
         Table newTable = new Table();
         newTable.setTableStatus("Đang trống");
         newTable.setTableName(tableRequestDTO.getTableName());
+        newTable.setStatus(Constants.ENTITY_STATUS.ACTIVE);
         return tableRepository.save(newTable);
     }
     public Table updateTable(Long tableId, TableRequestDTO tableRequestDTO) throws NotFoundException, BadRequestException {

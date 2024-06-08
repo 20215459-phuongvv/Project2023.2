@@ -98,6 +98,7 @@ public class MenuService implements IMenuService {
         }
         Menu newMenu = new Menu();
         newMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
+        newMenu.setStatus(Constants.ENTITY_STATUS.ACTIVE);
         return menuRepository.save(newMenu);
     }
 

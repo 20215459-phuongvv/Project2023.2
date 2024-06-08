@@ -43,11 +43,12 @@ public class DishService implements IDishService {
         newDish.setDishPrice(dishRequestDTO.getDishPrice());
         newDish.setDishStatus(dishRequestDTO.getDishStatus());
         newDish.setThumbnail(thumbnail);
+        newDish.setStatus(Constants.ENTITY_STATUS.ACTIVE);
         menu.getDishes().add(newDish);
         return dishRepository.save(newDish);
     }
     public DishResponseDTO getDishById(Long dishId) throws NotFoundException {
-        Dish dish = dishRepository.findById(dishId)
+        Dish dish = dishRepository.findByDishIdAndStatus(dishId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy món ăn có id: " + dishId));
         return modelMapper.map(dish, DishResponseDTO.class);
     }
