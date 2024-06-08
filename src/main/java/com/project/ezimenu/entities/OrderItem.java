@@ -31,6 +31,9 @@ public class OrderItem {
     @Column(name = "dishStatus")
     private String dishStatus;
 
+    @Column(name = "status")
+    private Short status;
+
     @ManyToOne
     @JoinColumn(name = "orderId")
     @JsonIgnore

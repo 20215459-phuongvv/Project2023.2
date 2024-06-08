@@ -57,7 +57,7 @@ public class DishService implements IDishService {
                 .map(dish -> modelMapper.map(dish, DishResponseDTO.class))
                 .collect(Collectors.toList());
     }
-    public Dish updateDish(Long dishId, DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException {
+    public Dish updateDish(Long dishId, DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException, IOException {
         if(dishRequestDTO.getDishName() == null
                 || "".equals(dishRequestDTO.getDishName())
                 || Objects.isNull(dishRequestDTO.getDishPrice())
@@ -69,9 +69,14 @@ public class DishService implements IDishService {
         Menu menu = menuRepository.findById(dishRequestDTO.getMenuId())
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + dishRequestDTO.getMenuId()));
         updatedDish.setMenu(menu);
+        if (dishRequestDTO.getThumbnail() != null) {
+            String thumbnail = cloudinaryService.upload(dishRequestDTO.getThumbnail().getBytes(), dishRequestDTO.getThumbnail().getOriginalFilename(), "thumbnails");
+            updatedDish.setThumbnail(thumbnail);
+        }
         updatedDish.setDishName(dishRequestDTO.getDishName());
         updatedDish.setDishPrice(dishRequestDTO.getDishPrice());
         updatedDish.setDishStatus(dishRequestDTO.getDishStatus());
+
         return dishRepository.save(updatedDish);
     }
 

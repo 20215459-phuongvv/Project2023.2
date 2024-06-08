@@ -23,6 +23,9 @@ public class Order {
     @Column(name = "orderTime")
     private LocalDateTime orderTime;
 
+    @Column(name = "status")
+    private Short status;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties("order")
     List<OrderItem> orderItems;

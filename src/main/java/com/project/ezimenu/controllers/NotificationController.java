@@ -15,7 +15,7 @@ import java.util.List;
 public class NotificationController {
     @Autowired
     private NotificationService notificationService;
-    @RequestMapping(path = "/admin/notifications/{tableId}", method = RequestMethod.GET)
+    @RequestMapping(path = "/admin/notifications/tables/{tableId}", method = RequestMethod.GET)
     public ResponseEntity<?> getTableNotifications(@PathVariable Long tableId) throws NotFoundException {
         try{
             List<NotificationResponseDTO> notifications = notificationService.getNotificationsByTableId(tableId);

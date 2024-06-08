@@ -6,8 +6,10 @@ import com.project.ezimenu.entities.Dish;
 import com.project.ezimenu.exceptions.BadRequestException;
 import com.project.ezimenu.exceptions.NotFoundException;
 import com.project.ezimenu.services.DishService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +40,8 @@ public class DishController {
         }
     }
 
-    @RequestMapping(path = "/admin/dishes", method = RequestMethod.POST)
-    public ResponseEntity<?> addDish(@RequestBody DishRequestDTO dishRequestDTO) throws NotFoundException {
+    @RequestMapping(path = "/admin/dishes", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> addDish(@ModelAttribute @Valid DishRequestDTO dishRequestDTO) throws NotFoundException {
         try{
             Dish newDish = dishService.addDish(dishRequestDTO);
             return new ResponseEntity<>(newDish, HttpStatus.CREATED);
@@ -52,9 +54,9 @@ public class DishController {
         }
 
     }
-    @RequestMapping(path = "/admin/dishes/{dishId}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/admin/dishes/{dishId}", method = RequestMethod.PUT, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateDish(@PathVariable Long dishId,
-                                        @RequestBody DishRequestDTO dishRequestDTO)
+                                        @ModelAttribute @Valid DishRequestDTO dishRequestDTO)
             throws NotFoundException {
         try{
             Dish updatedDish = dishService.updateDish(dishId, dishRequestDTO);
@@ -63,6 +65,8 @@ public class DishController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (BadRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     @RequestMapping(path = "/admin/dishes/{dishId}", method = RequestMethod.DELETE)

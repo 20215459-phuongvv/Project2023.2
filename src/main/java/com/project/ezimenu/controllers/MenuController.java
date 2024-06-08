@@ -37,7 +37,7 @@ public class MenuController {
             return new ResponseEntity<>("Bàn này không tồn tại!", HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/{tableId}/menus/{menuId}")
+    @GetMapping("/menus/{menuId}")
     public ResponseEntity<?> getMenuById(@PathVariable Long menuId) throws NotFoundException {
         try {
             MenuResponseDTO menu = menuService.getMenuById(menuId);

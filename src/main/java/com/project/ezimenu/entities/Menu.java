@@ -19,8 +19,8 @@ public class Menu {
     @Column(name = "menuTitle")
     private String menuTitle;
 
-    @Column(name = "menuDescription")
-    private String menuDescription;
+    @Column(name = "status")
+    private Short status;
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("menu")

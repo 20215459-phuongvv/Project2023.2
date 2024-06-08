@@ -38,10 +38,19 @@ public class OrderController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/admin/orders/table/{tableId}")
+    @GetMapping("/admin/orders/tables/{tableId}")
     public ResponseEntity<?> getOrderByTableId(@PathVariable Long tableId) throws NotFoundException {
         try{
             OrderResponseDTO order = orderService.getOrderResponseByTableId(tableId);
+            return ResponseEntity.ok(order);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping("/orders/tables/{tableId}")
+    public ResponseEntity<?> getOrderForCustomerByTableId(@PathVariable Long tableId) throws NotFoundException {
+        try{
+            OrderResponseDTO order = orderService.getOrderResponseForCustomerByTableId(tableId);
             return ResponseEntity.ok(order);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

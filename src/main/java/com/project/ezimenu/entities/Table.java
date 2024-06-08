@@ -25,6 +25,9 @@ public class Table {
     @Column(name = "startOrderingTime")
     private LocalDateTime startOrderingTime;
 
+    @Column(name = "status")
+    private Short status;
+
     @OneToMany(mappedBy = "table", fetch = FetchType.EAGER)
     @JsonIgnoreProperties("table")
     private List<Order> orders;

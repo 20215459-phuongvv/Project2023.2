@@ -23,6 +23,9 @@ public class Bill {
     @Column(name = "billDateTime")
     private LocalDateTime billDateTime;
 
+    @Column(name = "status")
+    private Short status;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
     @JsonIgnoreProperties("bill")

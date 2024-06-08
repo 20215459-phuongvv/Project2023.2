@@ -27,24 +27,6 @@ public class PaymentReminderScheduler {
     private MessageController messageController;
     @Autowired
     private TableRepository tableRepository;
-//    @Scheduled(fixedRate = 30*60*1000)
-//    public void sendPaymentRemindersVer1() {
-//        try {
-//            List<TableResponseDTO> tables = tableService.getAllTables();
-//            for (TableResponseDTO table : tables) {
-//                if ("Đã thanh toán".equals(table.getTableStatus())) {
-//                    String message = "Bàn " + table.getTableId() + " đã thanh toán, bạn có muốn chuyển về bàn trống không?";
-//                    notificationService.addNotification(table.getTableId(), message);
-//                    Message request = new Message();
-//                    request.setTo("admin");
-//                    request.setText(LocalDateTime.now().format(DateUtils.FORMATTER) + ": " + message);
-//                    messageController.sendToSpecificUser(request);
-//                }
-//            }
-//        } catch (NotFoundException e) {
-//            e.printStackTrace();
-//        }
-//    }
     @Scheduled(fixedRate = 1*60*1000)
     public void sendPaymentRemindersVer2() {
         try {

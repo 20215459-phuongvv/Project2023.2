@@ -13,4 +13,6 @@ public interface IOrderService {
     Order getOrderById(Long orderId) throws NotFoundException;
     Order sendOrder(Long tableId) throws NotFoundException;
     void deleteOrder(Long orderId) throws NotFoundException;
+
+    OrderResponseDTO getOrderResponseForCustomerByTableId(Long tableId) throws NotFoundException;
 }

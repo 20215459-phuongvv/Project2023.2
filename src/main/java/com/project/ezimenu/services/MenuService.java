@@ -97,7 +97,6 @@ public class MenuService implements IMenuService {
         }
         Menu newMenu = new Menu();
         newMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
-        newMenu.setMenuDescription(menuRequestDTO.getMenuDescription());
         newMenu = menuRepository.save(newMenu);
         if(menuRequestDTO.getDishRequestDTO() != null && !menuRequestDTO.getDishRequestDTO().isEmpty()){
             Menu finalNewMenu = newMenu;
@@ -122,7 +121,6 @@ public class MenuService implements IMenuService {
         Menu updatedMenu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
         updatedMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
-        updatedMenu.setMenuDescription(menuRequestDTO.getMenuDescription());
         return menuRepository.save(updatedMenu);
     }
 

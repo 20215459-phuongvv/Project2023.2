@@ -128,6 +128,28 @@ public class OrderService implements IOrderService {
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đơn hàng với id: " + orderId));
         orderRepository.deleteById(orderId);
     }
+
+    @Override
+    public OrderResponseDTO getOrderResponseForCustomerByTableId(Long tableId) throws NotFoundException {
+        Table table = tableRepository.findById(tableId)
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
+        if(table.getTableStatus().equals("Đang trống")){
+            throw new NotFoundException("Bàn này chưa có order nào!");
+        }
+        Order order = table.getOrders().get(table.getOrders().size() - 1);
+        List<OrderItemResponseDTO> orderItemResponseDTOS = order.getOrderItems().stream()
+                .map(orderItem -> {
+                    OrderItemResponseDTO orderItemResponseDTO = modelMapper.map(orderItem, OrderItemResponseDTO.class);
+                    orderItemResponseDTO.setDishName(orderItem.getDish().getDishName());
+                    orderItemResponseDTO.setCustomPrice((orderItem.getCustomPrice() == 0) ? orderItem.getDish().getDishPrice() : orderItem.getCustomPrice());
+                    return orderItemResponseDTO;
+                })
+                .collect(Collectors.toList());
+        OrderResponseDTO orderResponseDTO = modelMapper.map(order, OrderResponseDTO.class);
+        orderResponseDTO.setOrderItemResponseDTO(orderItemResponseDTOS);
+        return orderResponseDTO;
+    }
+
     private OrderItem convertToOrderItem(OrderItemRequestDTO orderItemRequestDTO) throws NotFoundException {
         OrderItem orderItem = new OrderItem();
         Dish dish = dishRepository.findById(orderItemRequestDTO.getDishId())
