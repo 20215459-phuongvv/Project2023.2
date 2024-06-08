@@ -13,6 +13,7 @@ import com.project.ezimenu.repositories.OrderItemRepository;
 import com.project.ezimenu.repositories.OrderRepository;
 import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.interfaces.IOrderService;
+import com.project.ezimenu.utils.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -34,7 +35,7 @@ public class OrderService implements IOrderService {
     private ModelMapper modelMapper;
     private Sort sortByTimeAsc = Sort.by(Sort.Direction.ASC, "orderTime");
     public List<OrderResponseDTO> getAllOrders() {
-        List<Order> orders = orderRepository.findAll(sortByTimeAsc);
+        List<Order> orders = orderRepository.findByStatusOrderByOrderTimeAsc(Constants.ENTITY_STATUS.ACTIVE);
         return orders.stream()
                 .map(order -> {
                     OrderResponseDTO orderResponseDTO = modelMapper.map(order, OrderResponseDTO.class);
@@ -53,7 +54,7 @@ public class OrderService implements IOrderService {
     }
 
     public OrderResponseDTO getOrderResponseById(Long orderId) throws NotFoundException {
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByOrderIdAndStatus(orderId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đơn hàng với id: " + orderId));
         OrderResponseDTO orderResponseDTO = modelMapper.map(order, OrderResponseDTO.class);
         List<OrderItemResponseDTO> orderItemResponseDTOS = order.getOrderItems().stream()
@@ -68,7 +69,7 @@ public class OrderService implements IOrderService {
         return orderResponseDTO;
     }
     public OrderResponseDTO getOrderResponseByTableId(Long tableId) throws NotFoundException {
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
         if(table.getTableStatus().equals("Đang trống")){
             throw new NotFoundException("Bàn này chưa có order nào!");
@@ -87,9 +88,8 @@ public class OrderService implements IOrderService {
         return orderResponseDTO;
     }
     public Order getOrderById(Long orderId) throws NotFoundException {
-        Order order = orderRepository.findById(orderId)
+        return orderRepository.findByOrderIdAndStatus(orderId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đơn hàng với id: " + orderId));
-        return order;
     }
     public Order createEmptyOrder(Long tableId) throws NotFoundException {
         Table table = tableRepository.findById(tableId)
@@ -101,7 +101,7 @@ public class OrderService implements IOrderService {
         return orderRepository.save(newOrder);
     }
     public Order sendOrder(Long tableId) throws NotFoundException {
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
         table.setTableStatus("Đang phục vụ");
         Order order = table.getOrders().get(table.getOrders().size() - 1);
@@ -123,15 +123,16 @@ public class OrderService implements IOrderService {
         tableRepository.save(table);
         return orderRepository.save(order);
     }
-    public void deleteOrder(Long orderId) throws NotFoundException {
-        Order order = orderRepository.findById(orderId)
+    public Order deleteOrder(Long orderId) throws NotFoundException {
+        Order order = orderRepository.findByOrderIdAndStatus(orderId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đơn hàng với id: " + orderId));
-        orderRepository.deleteById(orderId);
+        order.setStatus(Constants.ENTITY_STATUS.INACTIVE);
+        return orderRepository.save(order);
     }
 
     @Override
     public OrderResponseDTO getOrderResponseForCustomerByTableId(Long tableId) throws NotFoundException {
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
         if(table.getTableStatus().equals("Đang trống")){
             throw new NotFoundException("Bàn này chưa có order nào!");

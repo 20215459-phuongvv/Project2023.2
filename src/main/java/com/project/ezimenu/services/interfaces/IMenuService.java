@@ -14,5 +14,5 @@ public interface IMenuService {
     MenuResponseDTO getMenuById(Long menuId) throws NotFoundException;
     Menu addMenu(MenuRequestDTO menuRequestDTO) throws BadRequestException;
     Menu updateMenu(Long menuId, MenuRequestDTO menuRequestDTO) throws NotFoundException, BadRequestException;
-    void deleteMenu(Long menuId) throws NotFoundException;
+    Menu deleteMenu(Long menuId) throws NotFoundException;
 }

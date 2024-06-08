@@ -70,10 +70,10 @@ public class DishController {
         }
     }
     @RequestMapping(path = "/admin/dishes/{dishId}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteDish(@PathVariable Long dishId) throws NotFoundException {
+    public ResponseEntity<?> deleteDish(@PathVariable Long dishId) throws NotFoundException {
         try{
-            dishService.deleteDish(dishId);
-            return new ResponseEntity<>("Xóa món ăn thành công!", HttpStatus.OK);
+            Dish dish = dishService.deleteDish(dishId);
+            return new ResponseEntity<>(dish, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }

@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TableRepository extends JpaRepository<Table, Long> {
-    Optional<List<Table>> findByTableStatus(String status);
+    Optional<Table> findByTableIdAndStatus(Long tableId, short active);
 
-    Optional<List<Table>> findByTableStatusIgnoreCase(String status);
+    List<Table> findByStatus(short active);
 
-    Optional<Table> findByTableName(String tableName);
+    List<Table> findByTableStatusIgnoreCaseAndStatus(String đang_trống, short active);
+
+    Optional<Table> findByTableNameAndStatus(String tableName, short active);
 }

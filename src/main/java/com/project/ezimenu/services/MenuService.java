@@ -15,6 +15,7 @@ import com.project.ezimenu.repositories.MenuRepository;
 import com.project.ezimenu.repositories.OrderRepository;
 import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.interfaces.IMenuService;
+import com.project.ezimenu.utils.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,7 +39,7 @@ public class MenuService implements IMenuService {
     @Autowired
     private Type listType;
     public List<MenuResponseDTO> getAllMenus() {
-        List<Menu> menus = menuRepository.findAll();
+        List<Menu> menus = menuRepository.findByStatus(Constants.ENTITY_STATUS.ACTIVE);
         return menus.stream()
                 .map(menu -> {
                     MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
@@ -63,7 +64,7 @@ public class MenuService implements IMenuService {
             tableRepository.save(table);
             orderRepository.save(newOrder);
         }
-        List<Menu> menus = menuRepository.findAll();
+        List<Menu> menus = menuRepository.findByStatus(Constants.ENTITY_STATUS.ACTIVE);
         return menus.stream()
                 .map(menu -> {
                     MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
@@ -77,7 +78,7 @@ public class MenuService implements IMenuService {
     }
 
     public MenuResponseDTO getMenuById(Long menuId) throws NotFoundException{
-        Menu menu = menuRepository.findById(menuId)
+        Menu menu = menuRepository.findByMenuIdAndStatus(menuId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
         MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
         List<DishResponseDTO> dishResponseDTOs = menu.getDishes().stream()
@@ -91,26 +92,12 @@ public class MenuService implements IMenuService {
         if(menuRequestDTO.getMenuTitle() == null || "".equals(menuRequestDTO.getMenuTitle())){
             throw new BadRequestException("Vui lòng điền tên danh mục!");
         }
-        Optional<Menu> existingMenu = menuRepository.findByMenuTitle(menuRequestDTO.getMenuTitle());
+        Optional<Menu> existingMenu = menuRepository.findByMenuTitleAndStatus(menuRequestDTO.getMenuTitle(), Constants.ENTITY_STATUS.ACTIVE);
         if(existingMenu.isPresent()){
             throw new BadRequestException("Danh mục này đã tồn tại!");
         }
         Menu newMenu = new Menu();
         newMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
-        newMenu = menuRepository.save(newMenu);
-        if(menuRequestDTO.getDishRequestDTO() != null && !menuRequestDTO.getDishRequestDTO().isEmpty()){
-            Menu finalNewMenu = newMenu;
-            List<Dish> dishes = menuRequestDTO.getDishRequestDTO()
-                    .stream()
-                    .map(dishRequestDTO -> {
-                        Dish dish = convertToDish(dishRequestDTO);
-                        dish.setMenu(finalNewMenu);
-                        return dish;
-                    })
-                    .collect(Collectors.toList());
-            newMenu.setDishes(dishes);
-            dishRepository.saveAll(dishes);
-        }
         return menuRepository.save(newMenu);
     }
 
@@ -118,16 +105,17 @@ public class MenuService implements IMenuService {
         if(menuRequestDTO.getMenuTitle() == null || "".equals(menuRequestDTO.getMenuTitle())){
             throw new BadRequestException("Vui lòng điền tên danh mục!");
         }
-        Menu updatedMenu = menuRepository.findById(menuId)
+        Menu updatedMenu = menuRepository.findByMenuIdAndStatus(menuId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
         updatedMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
         return menuRepository.save(updatedMenu);
     }
 
-    public void deleteMenu(Long menuId) throws NotFoundException {
-        Menu menu = menuRepository.findById(menuId)
+    public Menu deleteMenu(Long menuId) throws NotFoundException {
+        Menu menu = menuRepository.findByMenuIdAndStatus(menuId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
-        menuRepository.deleteById(menuId);
+        menu.setStatus(Constants.ENTITY_STATUS.INACTIVE);
+        return menuRepository.save(menu);
     }
     private Dish convertToDish(DishRequestDTO dishRequestDTO) {
         Dish dish = new Dish();

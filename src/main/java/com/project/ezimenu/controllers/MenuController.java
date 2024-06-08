@@ -69,9 +69,9 @@ public class MenuController {
         }
     }
     @RequestMapping(path = "/admin/menus/{menuId}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteMenu(@PathVariable Long menuId) throws NotFoundException {
+    public ResponseEntity<?> deleteMenu(@PathVariable Long menuId) throws NotFoundException {
         try{
-            menuService.deleteMenu(menuId);
+            Menu menu = menuService.deleteMenu(menuId);
             return new ResponseEntity<>("Đã xóa menu thành công!", HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

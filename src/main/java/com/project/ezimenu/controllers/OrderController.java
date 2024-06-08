@@ -72,11 +72,11 @@ public class OrderController {
     }
 
     @RequestMapping(path = "admin/orders/{orderId}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteOrder(@PathVariable Long orderId)
+    public ResponseEntity<?> deleteOrder(@PathVariable Long orderId)
             throws NotFoundException {
         try{
-            orderService.deleteOrder(orderId);
-            return ResponseEntity.ok("Đã xóa đơn hàng thành công!");
+            Order order = orderService.deleteOrder(orderId);
+            return ResponseEntity.ok(order);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }

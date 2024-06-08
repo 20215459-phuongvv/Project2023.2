@@ -27,6 +27,9 @@ public class Dish {
     @Column(name = "dishStatus")
     private Short dishStatus;
 
+    @Column(name = "status")
+    private Short status;
+
     @ManyToOne
     @JoinColumn(name = "menuId")
     @JsonIgnore

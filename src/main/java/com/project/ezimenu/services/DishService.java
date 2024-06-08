@@ -9,6 +9,7 @@ import com.project.ezimenu.exceptions.NotFoundException;
 import com.project.ezimenu.repositories.DishRepository;
 import com.project.ezimenu.repositories.MenuRepository;
 import com.project.ezimenu.services.interfaces.IDishService;
+import com.project.ezimenu.utils.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,7 +53,7 @@ public class DishService implements IDishService {
     }
 
     public List<DishResponseDTO> getAllDishes() {
-        List<Dish> dishes = dishRepository.findAll();
+        List<Dish> dishes = dishRepository.findByStatus(Constants.ENTITY_STATUS.ACTIVE);
         return dishes.stream()
                 .map(dish -> modelMapper.map(dish, DishResponseDTO.class))
                 .collect(Collectors.toList());
@@ -64,9 +65,9 @@ public class DishService implements IDishService {
                 || Objects.isNull(dishRequestDTO.getMenuId())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
-        Dish updatedDish = dishRepository.findById(dishId)
+        Dish updatedDish = dishRepository.findByDishIdAndStatus(dishId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy món ăn có id: " + dishId));
-        Menu menu = menuRepository.findById(dishRequestDTO.getMenuId())
+        Menu menu = menuRepository.findByMenuIdAndStatus(dishRequestDTO.getMenuId(), Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + dishRequestDTO.getMenuId()));
         updatedDish.setMenu(menu);
         if (dishRequestDTO.getThumbnail() != null) {
@@ -80,9 +81,10 @@ public class DishService implements IDishService {
         return dishRepository.save(updatedDish);
     }
 
-    public void deleteDish(Long dishId) throws NotFoundException {
-        Dish dish = dishRepository.findById(dishId)
+    public Dish deleteDish(Long dishId) throws NotFoundException {
+        Dish dish = dishRepository.findByDishIdAndStatus(dishId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy món ăn có id: " + dishId));
-        dishRepository.deleteById(dishId);
+        dish.setStatus(Constants.ENTITY_STATUS.INACTIVE);
+        return dishRepository.save(dish);
     }
 }

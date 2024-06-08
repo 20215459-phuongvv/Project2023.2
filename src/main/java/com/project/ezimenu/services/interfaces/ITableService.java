@@ -15,5 +15,5 @@ public interface ITableService {
     Table addTable(TableRequestDTO tableRequestDTO) throws BadRequestException;
     Table updateTable(Long tableId, TableRequestDTO tableRequestDTO) throws NotFoundException, BadRequestException;
     Table updateTableStatus(Long tableId, String status) throws NotFoundException;
-    void deleteTable(Long tableId) throws NotFoundException;
+    Table deleteTable(Long tableId) throws NotFoundException;
 }

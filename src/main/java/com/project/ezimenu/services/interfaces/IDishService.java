@@ -14,5 +14,5 @@ public interface IDishService {
     DishResponseDTO getDishById(Long dishId) throws NotFoundException;
     List<DishResponseDTO> getAllDishes();
     Dish updateDish(Long dishId, DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException, IOException;
-    void deleteDish(Long dishId) throws NotFoundException;
+    Dish deleteDish(Long dishId) throws NotFoundException;
 }

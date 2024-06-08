@@ -13,8 +13,10 @@ import com.project.ezimenu.repositories.NotificationRepository;
 import com.project.ezimenu.repositories.OrderRepository;
 import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.interfaces.ITableService;
+import com.project.ezimenu.utils.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.yaml.snakeyaml.scanner.Constant;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -32,7 +34,7 @@ public class TableService implements ITableService {
     @Autowired
     private ModelMapper modelMapper;
     public List<TableResponseDTO> getAllTables() {
-        List<Table> tables = tableRepository.findAll();
+        List<Table> tables = tableRepository.findByStatus(Constants.ENTITY_STATUS.ACTIVE);
         return tables.stream()
                 .map(table -> {
                     int doneDish = 0;
@@ -50,8 +52,7 @@ public class TableService implements ITableService {
                     }
                     TableResponseDTO tableResponseDTO = modelMapper.map(table, TableResponseDTO.class);
                     List<NotificationResponseDTO> notificationResponseDTOS = table.getNotifications().stream()
-                            .map(notification -> modelMapper.map(notification, NotificationResponseDTO.class))
-                            .collect(Collectors.toList());
+                            .map(notification -> modelMapper.map(notification, NotificationResponseDTO.class)).toList();
                     tableResponseDTO.setNotificationNumber(notificationResponseDTOS.size());
                     tableResponseDTO.setDoneDish(doneDish);
                     tableResponseDTO.setTotalDish(totalDish);
@@ -61,7 +62,7 @@ public class TableService implements ITableService {
                 .collect(Collectors.toList());
     }
     public TableResponseDTO getTableById(Long tableId) throws NotFoundException {
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
         int doneDish = 0;
         int totalDish = 0;
@@ -78,8 +79,7 @@ public class TableService implements ITableService {
         }
         TableResponseDTO tableResponseDTO = modelMapper.map(table, TableResponseDTO.class);
         List<NotificationResponseDTO> notificationResponseDTOS = table.getNotifications().stream()
-                .map(notification -> modelMapper.map(notification, NotificationResponseDTO.class))
-                .collect(Collectors.toList());
+                .map(notification -> modelMapper.map(notification, NotificationResponseDTO.class)).toList();
         tableResponseDTO.setDoneDish(doneDish);
         tableResponseDTO.setTotalDish(totalDish);
         tableResponseDTO.setNotificationNumber(notificationResponseDTOS.size());
@@ -88,9 +88,8 @@ public class TableService implements ITableService {
     }
     public List<TableResponseDTO> getTablesByStatus(String status) throws NotFoundException {
         if("Đang hoạt động".equalsIgnoreCase(status)){
-            List<Table> tables = tableRepository.findAll();
-            List<Table> emptyTables = tableRepository.findByTableStatusIgnoreCase("Đang trống")
-                    .orElseThrow(() -> new NotFoundException("Không có bàn nào có trạng thái: " + status));
+            List<Table> tables = tableRepository.findByStatus(Constants.ENTITY_STATUS.ACTIVE);
+            List<Table> emptyTables = tableRepository.findByTableStatusIgnoreCaseAndStatus("Đang trống", Constants.ENTITY_STATUS.ACTIVE);
             tables.removeAll(emptyTables);
             return tables.stream()
                     .map(table -> {
@@ -119,8 +118,10 @@ public class TableService implements ITableService {
                     })
                     .collect(Collectors.toList());
         }
-        List<Table> tables = tableRepository.findByTableStatusIgnoreCase(status)
-                .orElseThrow(() -> new NotFoundException("Không có bàn nào có trạng thái: " + status));
+        List<Table> tables = tableRepository.findByTableStatusIgnoreCaseAndStatus(status, Constants.ENTITY_STATUS.ACTIVE);
+        if (tables.isEmpty()) {
+            throw new NotFoundException("Không có bàn nào có trạng thái: " + status);
+        }
         return tables.stream()
                 .map(table -> {
                     int doneDish = 0;
@@ -152,7 +153,7 @@ public class TableService implements ITableService {
         if(tableRequestDTO.getTableName() == null || "".equals(tableRequestDTO.getTableName())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
-        Optional<Table> existingTable = tableRepository.findByTableName(tableRequestDTO.getTableName());
+        Optional<Table> existingTable = tableRepository.findByTableNameAndStatus(tableRequestDTO.getTableName(), Constants.ENTITY_STATUS.ACTIVE);
         if(existingTable.isPresent()){
             throw new BadRequestException("Bàn có tên: " + tableRequestDTO.getTableName() + " đã tồn tại!");
         }
@@ -166,9 +167,9 @@ public class TableService implements ITableService {
         if(tableRequestDTO.getTableName() == null || "".equals(tableRequestDTO.getTableName())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
-        Optional<Table> existingTable = tableRepository.findByTableName(tableRequestDTO.getTableName());
+        Optional<Table> existingTable = tableRepository.findByTableNameAndStatus(tableRequestDTO.getTableName(), Constants.ENTITY_STATUS.ACTIVE);
         if(existingTable.isPresent()){
             throw new BadRequestException("Bàn có tên: " + tableRequestDTO.getTableName() + " đã tồn tại!");
         }
@@ -176,7 +177,7 @@ public class TableService implements ITableService {
         return tableRepository.save(table);
     }
     public Table updateTableStatus(Long tableId, String status) throws NotFoundException {
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
         table.setTableStatus(status);
         if(status.equals("Đã thanh toán")){
@@ -193,16 +194,10 @@ public class TableService implements ITableService {
         }
         return tableRepository.save(table);
     }
-    public void deleteTable(Long tableId) throws NotFoundException {
-        Table table = tableRepository.findById(tableId)
+    public Table deleteTable(Long tableId) throws NotFoundException {
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
-        List<Order> orders = orderRepository.findByTable(table);
-        if(!orders.isEmpty()){
-            for (Order order : orders) {
-                order.setTable(null);
-                orderRepository.save(order);
-            }
-        }
-        tableRepository.deleteById(tableId);
+        table.setStatus(Constants.ENTITY_STATUS.INACTIVE);
+        return tableRepository.save(table);
     }
 }
