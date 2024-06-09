@@ -22,60 +22,35 @@ public class DishController {
     private DishService dishService;
 
     @GetMapping("/dishes")
-    public ResponseEntity<?> getAllDishes(){
+    public ResponseEntity<?> getAllDishes() throws NotFoundException {
         List<DishResponseDTO> dishes = dishService.getAllDishes();
         if(dishes.isEmpty()){
-            return new ResponseEntity<>("Hiện không có món ăn nào!", HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Hiện không có món ăn nào!");
         }
         return ResponseEntity.ok(dishes);
     }
 
     @GetMapping("/dishes/{dishId}")
     public ResponseEntity<?> getDishById(@PathVariable Long dishId) throws NotFoundException {
-        try{
-            DishResponseDTO dish = dishService.getDishById(dishId);
-            return ResponseEntity.ok(dish);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        DishResponseDTO dish = dishService.getDishById(dishId);
+        return ResponseEntity.ok(dish);
     }
 
     @RequestMapping(path = "/admin/dishes", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> addDish(@ModelAttribute @Valid DishRequestDTO dishRequestDTO) throws NotFoundException {
-        try{
-            Dish newDish = dishService.addDish(dishRequestDTO);
-            return new ResponseEntity<>(newDish, HttpStatus.CREATED);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+    public ResponseEntity<?> addDish(@ModelAttribute @Valid DishRequestDTO dishRequestDTO) throws NotFoundException, BadRequestException, IOException {
+        Dish newDish = dishService.addDish(dishRequestDTO);
+        return new ResponseEntity<>(newDish, HttpStatus.CREATED);
     }
     @RequestMapping(path = "/admin/dishes/{dishId}", method = RequestMethod.PUT, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateDish(@PathVariable Long dishId,
                                         @ModelAttribute @Valid DishRequestDTO dishRequestDTO)
-            throws NotFoundException {
-        try{
-            Dish updatedDish = dishService.updateDish(dishId, dishRequestDTO);
-            return new ResponseEntity<>(updatedDish, HttpStatus.ACCEPTED);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throws NotFoundException, BadRequestException, IOException {
+        Dish updatedDish = dishService.updateDish(dishId, dishRequestDTO);
+        return new ResponseEntity<>(updatedDish, HttpStatus.ACCEPTED);
     }
     @RequestMapping(path = "/admin/dishes/{dishId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteDish(@PathVariable Long dishId) throws NotFoundException {
-        try{
-            Dish dish = dishService.deleteDish(dishId);
-            return new ResponseEntity<>(dish, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Dish dish = dishService.deleteDish(dishId);
+        return new ResponseEntity<>(dish, HttpStatus.OK);
     }
 }

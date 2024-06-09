@@ -11,6 +11,7 @@ import com.project.ezimenu.repositories.OrderItemRepository;
 import com.project.ezimenu.repositories.OrderRepository;
 import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.interfaces.IOrderItemService;
+import com.project.ezimenu.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class OrderItemService implements IOrderItemService {
@@ -29,7 +30,7 @@ public class OrderItemService implements IOrderItemService {
         Dish dish = dishRepository.findById(orderItemRequestDTO.getDishId())
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy món ăn có id: " + orderItemRequestDTO.getDishId()));
         OrderItem newOrderItem = new OrderItem();
-        if(dish.getDishStatus().equals("Hết món")){
+        if(dish.getDishStatus() == Constants.DISH_STATUS.OUT_OF_DISH){
             throw new BadRequestException("Món ăn đã hết hàng");
         }
         newOrderItem.setDish(dish);

@@ -104,6 +104,9 @@ public class OrderService implements IOrderService {
         Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
         table.setTableStatus("Đang phục vụ");
+        if (table.getOrders().isEmpty()) {
+            throw new NotFoundException("Bàn này chưa có order để gửi đi!");
+        }
         Order order = table.getOrders().get(table.getOrders().size() - 1);
         order.setOrderTime(LocalDateTime.now());
         order.setOrderStatus("Đang ra món");

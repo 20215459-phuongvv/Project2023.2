@@ -17,46 +17,30 @@ public class NotificationController {
     private NotificationService notificationService;
     @RequestMapping(path = "/admin/notifications/tables/{tableId}", method = RequestMethod.GET)
     public ResponseEntity<?> getTableNotifications(@PathVariable Long tableId) throws NotFoundException {
-        try{
-            List<NotificationResponseDTO> notifications = notificationService.getNotificationsByTableId(tableId);
-            if(notifications.isEmpty()){
-                return new ResponseEntity<>("Bàn này không có thông báo nào!", HttpStatus.NOT_FOUND);
-            }
-            return ResponseEntity.ok(notifications);
-        } catch(NotFoundException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        List<NotificationResponseDTO> notifications = notificationService.getNotificationsByTableId(tableId);
+        if(notifications.isEmpty()){
+            return new ResponseEntity<>("Bàn này không có thông báo nào!", HttpStatus.NOT_FOUND);
         }
+        return ResponseEntity.ok(notifications);
     }
     @PostMapping("/notifications/{tableId}")
     public ResponseEntity<?> addTableNotification(@PathVariable Long tableId,
                                                   @RequestBody String text)
             throws NotFoundException
     {
-        try{
-            Notification notification = notificationService.addNotification(tableId, text);
-            return ResponseEntity.ok(notification);
-        } catch(NotFoundException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Notification notification = notificationService.addNotification(tableId, text);
+        return ResponseEntity.ok(notification);
     }
     @RequestMapping(path = "/admin/notifications/{notificationId}", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteNotification(@PathVariable Long notificationId)
             throws NotFoundException {
-        try{
-            notificationService.deleteNotification(notificationId);
-            return ResponseEntity.ok("Đã xóa thông báo thành công");
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok("Đã xóa thông báo thành công");
     }
     @RequestMapping(path = "/admin/notifications/table/{tableId}", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteAllNotifications(@PathVariable Long tableId)
             throws NotFoundException {
-        try{
-            notificationService.deleteAllTableNotifications(tableId);
-            return ResponseEntity.ok("Đã xóa thông báo thành công");
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        notificationService.deleteAllTableNotifications(tableId);
+        return ResponseEntity.ok("Đã xóa thông báo thành công");
     }
 }

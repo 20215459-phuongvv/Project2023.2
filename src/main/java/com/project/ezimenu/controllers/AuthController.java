@@ -22,12 +22,8 @@ public class AuthController {
     private UserService userService;
     @PostMapping("/login")
     public ResponseEntity<?> signIn(@RequestBody AuthRequestDTO authRequestDTO) throws Exception{
-        try {
-            AuthResponseDTO authResponseDTO= userService.signIn(authRequestDTO);
-            System.out.println(SecurityContextHolder.getContext());
-            return new ResponseEntity<>(authResponseDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        AuthResponseDTO authResponseDTO= userService.signIn(authRequestDTO);
+        System.out.println(SecurityContextHolder.getContext());
+        return new ResponseEntity<>(authResponseDTO, HttpStatus.OK);
     }
 }

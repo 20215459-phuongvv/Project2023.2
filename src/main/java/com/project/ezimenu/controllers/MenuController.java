@@ -21,60 +21,38 @@ public class MenuController {
     public ResponseEntity<?> getAllMenus() throws NotFoundException {
         List<MenuResponseDTO> menus = menuService.getAllMenus();
         if(menus.isEmpty()){
-            return new ResponseEntity<>("Hiện không có menu nào!", HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Hiện không có menu nào!");
         }
         return ResponseEntity.ok(menus);
     }
     @GetMapping("/{tableId}/menus")
-    public ResponseEntity<?> getAllMenusAndCreateOrder(@PathVariable Long tableId) {
-        try{
-            List<MenuResponseDTO> menus = menuService.getAllMenusAndCreateOrder(tableId);
-            if(menus.isEmpty()){
-                return new ResponseEntity<>("Hiện không có menu nào!", HttpStatus.NOT_FOUND);
-            }
-            return ResponseEntity.ok(menus);
-        } catch(NotFoundException e){
-            return new ResponseEntity<>("Bàn này không tồn tại!", HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> getAllMenusAndCreateOrder(@PathVariable Long tableId) throws NotFoundException {
+        List<MenuResponseDTO> menus = menuService.getAllMenusAndCreateOrder(tableId);
+        if(menus.isEmpty()){
+            throw new NotFoundException("Hiện không có menu nào!");
         }
+        return ResponseEntity.ok(menus);
     }
     @GetMapping("/menus/{menuId}")
     public ResponseEntity<?> getMenuById(@PathVariable Long menuId) throws NotFoundException {
-        try {
-            MenuResponseDTO menu = menuService.getMenuById(menuId);
-            return ResponseEntity.ok(menu);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        MenuResponseDTO menu = menuService.getMenuById(menuId);
+        return ResponseEntity.ok(menu);
     }
     @RequestMapping(path = "/admin/menus", method = RequestMethod.POST)
-    public ResponseEntity<?> addMenu(@RequestBody MenuRequestDTO menuRequestDTO){
-        try{
-            Menu newMenu = menuService.addMenu(menuRequestDTO);
-            return new ResponseEntity<>(newMenu, HttpStatus.CREATED);
-        } catch (BadRequestException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<?> addMenu(@RequestBody MenuRequestDTO menuRequestDTO) throws BadRequestException {
+        Menu newMenu = menuService.addMenu(menuRequestDTO);
+        return new ResponseEntity<>(newMenu, HttpStatus.CREATED);
     }
     @RequestMapping(path = "/admin/menus/{menuId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateMenu(@PathVariable Long menuId,
                                         @RequestBody MenuRequestDTO menuRequestDTO)
             throws NotFoundException, BadRequestException {
-        try{
-            Menu updatedMenu = menuService.updateMenu(menuId, menuRequestDTO);
-            return new ResponseEntity<>(updatedMenu, HttpStatus.ACCEPTED);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        Menu updatedMenu = menuService.updateMenu(menuId, menuRequestDTO);
+        return new ResponseEntity<>(updatedMenu, HttpStatus.ACCEPTED);
     }
     @RequestMapping(path = "/admin/menus/{menuId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteMenu(@PathVariable Long menuId) throws NotFoundException {
-        try{
-            Menu menu = menuService.deleteMenu(menuId);
-            return new ResponseEntity<>("Đã xóa menu thành công!", HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Menu menu = menuService.deleteMenu(menuId);
+        return new ResponseEntity<>(menu, HttpStatus.OK);
     }
 }

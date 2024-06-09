@@ -22,63 +22,43 @@ public class OrderController {
     private OrderService orderService;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     @RequestMapping(path = "admin/orders", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllOrders(){
+    public ResponseEntity<?> getAllOrders() throws NotFoundException {
         List<OrderResponseDTO> orders = orderService.getAllOrders();
         if(orders.isEmpty()){
-            return new ResponseEntity<>("Hiện không có order nào!", HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Hiện không có order nào!");
         }
         return ResponseEntity.ok(orders);
     }
     @GetMapping("/admin/orders/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId) throws NotFoundException {
-        try{
-            OrderResponseDTO order = orderService.getOrderResponseById(orderId);
-            return ResponseEntity.ok(order);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        OrderResponseDTO order = orderService.getOrderResponseById(orderId);
+        return ResponseEntity.ok(order);
     }
     @GetMapping("/admin/orders/tables/{tableId}")
     public ResponseEntity<?> getOrderByTableId(@PathVariable Long tableId) throws NotFoundException {
-        try{
-            OrderResponseDTO order = orderService.getOrderResponseByTableId(tableId);
-            return ResponseEntity.ok(order);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        OrderResponseDTO order = orderService.getOrderResponseByTableId(tableId);
+        return ResponseEntity.ok(order);
     }
     @GetMapping("/orders/tables/{tableId}")
     public ResponseEntity<?> getOrderForCustomerByTableId(@PathVariable Long tableId) throws NotFoundException {
-        try{
-            OrderResponseDTO order = orderService.getOrderResponseForCustomerByTableId(tableId);
-            return ResponseEntity.ok(order);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        OrderResponseDTO order = orderService.getOrderResponseForCustomerByTableId(tableId);
+        return ResponseEntity.ok(order);
     }
     @RequestMapping(path = "orders/{tableId}", method = RequestMethod.POST)
-    public ResponseEntity<?> sendOrder(@PathVariable Long tableId){
-        try{
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            Order newOrder = orderService.sendOrder(tableId);
-            Message message = new Message();
-            message.setText(currentDateTime.format(formatter) + ": " + "Bàn " + tableId + " đã tạo order mới!");
-            message.setTo("admin");
-            messageController.sendToSpecificUser(message);
-            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<?> sendOrder(@PathVariable Long tableId) throws NotFoundException {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        Order newOrder = orderService.sendOrder(tableId);
+        Message message = new Message();
+        message.setText(currentDateTime.format(formatter) + ": " + "Bàn " + tableId + " đã tạo order mới!");
+        message.setTo("admin");
+        messageController.sendToSpecificUser(message);
+        return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
     }
 
     @RequestMapping(path = "admin/orders/{orderId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteOrder(@PathVariable Long orderId)
             throws NotFoundException {
-        try{
-            Order order = orderService.deleteOrder(orderId);
-            return ResponseEntity.ok(order);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Order order = orderService.deleteOrder(orderId);
+        return ResponseEntity.ok(order);
     }
 }

@@ -16,32 +16,18 @@ public class BillController {
     private BillService billService;
     @GetMapping("/orders/{orderId}/bill")
     public ResponseEntity<?> getBill(@PathVariable Long orderId) throws NotFoundException {
-        try{
-            BillResponseDTO bill = billService.getBill(orderId);
-            if(bill == null) return new ResponseEntity<>("Đơn hàng này chưa có hóa đơn!", HttpStatus.NOT_FOUND);
-            return ResponseEntity.ok(bill);
-        } catch(NotFoundException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        BillResponseDTO bill = billService.getBill(orderId);
+        if(bill == null) throw new NotFoundException("Đơn hàng này chưa có hóa đơn!");
+        return ResponseEntity.ok(bill);
     }
     @RequestMapping(path = "/admin/orders/{orderId}/bill", method = RequestMethod.POST)
     public ResponseEntity<?> addBill(@PathVariable Long orderId) throws NotFoundException, BadRequestException {
-        try{
-            Bill bill = billService.addBill(orderId);
-            return ResponseEntity.ok(bill);
-        } catch(NotFoundException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        Bill bill = billService.addBill(orderId);
+        return ResponseEntity.ok(bill);
     }
     @RequestMapping(path = "/admin/orders/{orderId}/bill", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteBill(@PathVariable Long orderId) throws NotFoundException {
-        try{
-            billService.deleteBill(orderId);
-            return ResponseEntity.ok("Đã xóa bill thành công!");
-        } catch(NotFoundException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+public ResponseEntity<?> deleteBill(@PathVariable Long orderId) throws NotFoundException {
+        billService.deleteBill(orderId);
+        return ResponseEntity.ok("Đã xóa bill thành công!");
     }
 }
