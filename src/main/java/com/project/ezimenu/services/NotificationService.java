@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,6 +56,7 @@ public class NotificationService implements INotificationService {
         if(table.getNotifications() == null || table.getNotifications().isEmpty()){
             throw new NotFoundException("Bàn này không có thông báo nào!");
         }
-        notificationRepository.deleteAll(table.getNotifications());
+        table.setNotifications(new ArrayList<>());
+        tableRepository.save(table);
     }
 }

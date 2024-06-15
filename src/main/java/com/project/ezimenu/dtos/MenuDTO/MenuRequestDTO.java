@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 public class MenuRequestDTO {
-    @NotBlank(message = "Tên danh mục không được để trống!")
+    @NotBlank(message = "Tên thực đơn không được để trống!")
     private String menuTitle;
 }

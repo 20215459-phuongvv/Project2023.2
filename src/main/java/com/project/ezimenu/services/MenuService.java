@@ -79,7 +79,7 @@ public class MenuService implements IMenuService {
 
     public MenuResponseDTO getMenuById(Long menuId) throws NotFoundException{
         Menu menu = menuRepository.findByMenuIdAndStatus(menuId, Constants.ENTITY_STATUS.ACTIVE)
-                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy thực đơn có id: " + menuId));
         MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
         List<DishResponseDTO> dishResponseDTOs = menu.getDishes().stream()
                 .map(dish -> modelMapper.map(dish, DishResponseDTO.class))
@@ -90,11 +90,11 @@ public class MenuService implements IMenuService {
 
     public Menu addMenu(MenuRequestDTO menuRequestDTO) throws BadRequestException {
         if(menuRequestDTO.getMenuTitle() == null || "".equals(menuRequestDTO.getMenuTitle())){
-            throw new BadRequestException("Vui lòng điền tên danh mục!");
+            throw new BadRequestException("Vui lòng điền tên thực đơn!");
         }
         Optional<Menu> existingMenu = menuRepository.findByMenuTitleAndStatus(menuRequestDTO.getMenuTitle(), Constants.ENTITY_STATUS.ACTIVE);
         if(existingMenu.isPresent()){
-            throw new BadRequestException("Danh mục này đã tồn tại!");
+            throw new BadRequestException("Tên thực đơn đã tồn tại!");
         }
         Menu newMenu = new Menu();
         newMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
@@ -104,17 +104,17 @@ public class MenuService implements IMenuService {
 
     public Menu updateMenu(Long menuId, MenuRequestDTO menuRequestDTO) throws NotFoundException, BadRequestException {
         if(menuRequestDTO.getMenuTitle() == null || "".equals(menuRequestDTO.getMenuTitle())){
-            throw new BadRequestException("Vui lòng điền tên danh mục!");
+            throw new BadRequestException("Vui lòng điền tên thực đơn!");
         }
         Menu updatedMenu = menuRepository.findByMenuIdAndStatus(menuId, Constants.ENTITY_STATUS.ACTIVE)
-                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy thực đơn có id: " + menuId));
         updatedMenu.setMenuTitle(menuRequestDTO.getMenuTitle());
         return menuRepository.save(updatedMenu);
     }
 
     public Menu deleteMenu(Long menuId) throws NotFoundException {
         Menu menu = menuRepository.findByMenuIdAndStatus(menuId, Constants.ENTITY_STATUS.ACTIVE)
-                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + menuId));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy thực đơn có id: " + menuId));
         menu.setStatus(Constants.ENTITY_STATUS.INACTIVE);
         return menuRepository.save(menu);
     }

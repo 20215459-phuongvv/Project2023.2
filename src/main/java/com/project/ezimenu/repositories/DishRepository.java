@@ -10,4 +10,6 @@ public interface DishRepository extends JpaRepository<Dish, Long> {
     List<Dish> findByStatus(short active);
 
     Optional<Dish> findByDishIdAndStatus(Long dishId, short active);
+
+    boolean existsByDishNameAndStatus(String dishName, Short dishStatus);
 }

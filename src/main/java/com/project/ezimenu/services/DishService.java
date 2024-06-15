@@ -34,8 +34,11 @@ public class DishService implements IDishService {
                 || Objects.isNull(dishRequestDTO.getMenuId())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
+        if (dishRepository.existsByDishNameAndStatus(dishRequestDTO.getDishName(), dishRequestDTO.getDishStatus())) {
+            throw new BadRequestException("Tên món ăn đã tồn tại!");
+        }
         Menu menu = menuRepository.findById(dishRequestDTO.getMenuId())
-                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + dishRequestDTO.getMenuId()));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy thực đơn có id: " + dishRequestDTO.getMenuId()));
         String thumbnail = cloudinaryService.upload(dishRequestDTO.getThumbnail().getBytes(), dishRequestDTO.getThumbnail().getOriginalFilename(), "thumbnails");
         Dish newDish = new Dish();
         newDish.setMenu(menu);
@@ -66,10 +69,13 @@ public class DishService implements IDishService {
                 || Objects.isNull(dishRequestDTO.getMenuId())){
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin!");
         }
+        if (dishRepository.existsByDishNameAndStatus(dishRequestDTO.getDishName(), dishRequestDTO.getDishStatus())) {
+            throw new BadRequestException("Tên món ăn đã tồn tại!");
+        }
         Dish updatedDish = dishRepository.findByDishIdAndStatus(dishId, Constants.ENTITY_STATUS.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy món ăn có id: " + dishId));
         Menu menu = menuRepository.findByMenuIdAndStatus(dishRequestDTO.getMenuId(), Constants.ENTITY_STATUS.ACTIVE)
-                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy danh mục có id: " + dishRequestDTO.getMenuId()));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy thực đơn có id: " + dishRequestDTO.getMenuId()));
         updatedDish.setMenu(menu);
         if (dishRequestDTO.getThumbnail() != null) {
             String thumbnail = cloudinaryService.upload(dishRequestDTO.getThumbnail().getBytes(), dishRequestDTO.getThumbnail().getOriginalFilename(), "thumbnails");

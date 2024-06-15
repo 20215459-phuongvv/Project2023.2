@@ -2,6 +2,7 @@ package com.project.ezimenu.controllers;
 
 import com.project.ezimenu.dtos.OrderItemDTO.OrderItemRequestDTO;
 import com.project.ezimenu.entities.Message;
+import com.project.ezimenu.entities.Notification;
 import com.project.ezimenu.entities.Order;
 import com.project.ezimenu.entities.OrderItem;
 import com.project.ezimenu.exceptions.BadRequestException;
@@ -65,17 +66,14 @@ public class OrderItemController {
         Order order = orderService.getOrderById(orderId);
         OrderItem orderItem = orderItemService.getOrderItemById(orderItemId);
         if(orderItem.getOrder().getOrderId() != order.getOrderId()){
-            return new ResponseEntity<>("Mo này không nằm trong order " + orderId + "!", HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Món này không nằm trong order " + orderId + "!");
         }
-        if(!orderItem.getDishStatus().equals("Đang ra món")){
-            return new ResponseEntity<>("Món này đã ra rồi!", HttpStatus.OK);
-        }
-        notificationService.addNotification(order.getTable().getTableId(), "Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu món " + orderItem.getDish().getDishName() + " lên trước.");
+        Notification notification = notificationService.addNotification(order.getTable().getTableId(), "Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu món " + orderItem.getDish().getDishName() + " lên trước.");
         Message request = new Message();
         request.setTo("admin");
         request.setText(LocalDateTime.now().format(formatter) + ": Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu món " + orderItem.getDish().getDishName() + " lên trước.");
         messageController.sendToSpecificUser(request);
-        return new ResponseEntity<>("Yêu cầu đã được gửi đi", HttpStatus.OK);
+        return new ResponseEntity<>(notification, HttpStatus.OK);
     }
     @DeleteMapping("orders/{orderId}/items/{orderItemId}")
     public ResponseEntity<?> deleteOrderItem(@PathVariable Long orderId,

@@ -37,7 +37,7 @@ public class NotificationController {
         notificationService.deleteNotification(notificationId);
         return ResponseEntity.ok("Đã xóa thông báo thành công");
     }
-    @RequestMapping(path = "/admin/notifications/table/{tableId}", method = RequestMethod.DELETE)
+    @RequestMapping(path = "/admin/notifications/tables/{tableId}", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteAllNotifications(@PathVariable Long tableId)
             throws NotFoundException {
         notificationService.deleteAllTableNotifications(tableId);

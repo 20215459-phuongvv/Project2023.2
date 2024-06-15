@@ -17,7 +17,7 @@ public class DataSeeder implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
     @Override
     public void run(String...args) {
-        String adminUsername = "admin";
+        String adminUsername = "admin@gmail.com";
         if (userRepository.findByEmail(adminUsername).isEmpty()) {
             User adminUser = new User();
             adminUser.setPassword(passwordEncoder.encode("admin"));
