@@ -8,7 +8,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 @Component
 public class DataSeeder implements CommandLineRunner {
     @Autowired
@@ -18,10 +17,10 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String...args) {
         String adminUsername = "admin@gmail.com";
-        if (userRepository.findByEmail(adminUsername).isEmpty()) {
+        if (userRepository.findByUsername(adminUsername).isEmpty()) {
             User adminUser = new User();
             adminUser.setPassword(passwordEncoder.encode("admin"));
-            adminUser.setEmail(adminUsername);
+            adminUser.setUsername(adminUsername);
             adminUser.setRole(Role.ADMIN.toString());
             userRepository.save(adminUser);
         }

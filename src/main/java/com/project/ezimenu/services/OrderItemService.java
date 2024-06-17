@@ -69,7 +69,7 @@ public class OrderItemService implements IOrderItemService {
         orderItemRepository.save(orderItem);
         return order;
     }
-    public Order updateOrderItemStatus(Long orderId, Long orderItemId) throws NotFoundException {
+    public OrderItem updateOrderItemStatus(Long orderId, Long orderItemId) throws NotFoundException {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đơn hàng với id: " + orderId));
         OrderItem orderItem = order.getOrderItems().stream()
@@ -91,7 +91,7 @@ public class OrderItemService implements IOrderItemService {
             order.setOrderStatus("Đang ra món");
         }
         orderItemRepository.save(orderItem);
-        return order;
+        return orderItem;
     }
     public Order deleteOrderItem(Long orderId, Long orderItemId) throws NotFoundException, BadRequestException {
         Order order = orderRepository.findById(orderId)

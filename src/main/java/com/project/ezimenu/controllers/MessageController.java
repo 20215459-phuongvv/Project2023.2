@@ -13,6 +13,7 @@ public class MessageController {
     private SimpMessagingTemplate simpMessagingTemplate;
     @MessageMapping("/private")
     public void sendToSpecificUser(@Payload Message notification){
-        simpMessagingTemplate.convertAndSendToUser(notification.getTo(), "/specific", notification);
+        System.out.println(notification.toString());
+        simpMessagingTemplate.convertAndSendToUser("admin", "/specific", notification);
     }
 }

@@ -7,6 +7,9 @@ import com.project.ezimenu.exceptions.NotFoundException;
 import com.project.ezimenu.repositories.NotificationRepository;
 import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.interfaces.INotificationService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -50,13 +53,12 @@ public class NotificationService implements INotificationService {
         notificationRepository.deleteById(notificationId);
     }
 
-    public void deleteAllTableNotifications(Long tableId) throws NotFoundException {
+    @Transactional
+    public void deleteAllTableNotifications(Long tableId) {
         Table table = tableRepository.findById(tableId)
-                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bàn có id: " + tableId));
-        if(table.getNotifications() == null || table.getNotifications().isEmpty()){
-            throw new NotFoundException("Bàn này không có thông báo nào!");
-        }
-        table.setNotifications(new ArrayList<>());
+                .orElseThrow(() -> new EntityNotFoundException("Table not found with id: " + tableId));
+        Hibernate.initialize(table.getNotifications());
+        table.getNotifications().clear();
         tableRepository.save(table);
     }
 }

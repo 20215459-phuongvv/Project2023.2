@@ -44,7 +44,11 @@ public class BillService implements IBillService {
     public Bill addBill(Long orderId) throws NotFoundException, BadRequestException {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đơn hàng có id: " + orderId));
-        if(!order.getOrderStatus().equals("Đã hoàn thành")){
+        List<OrderItem> undoneOrderItem = order.getOrderItems()
+                .stream()
+                .filter(orderItem1 -> !"Đã ra món".equals(orderItem1.getDishStatus()))
+                .toList();
+        if(!undoneOrderItem.isEmpty()){
             throw new BadRequestException("Thanh toán không thành công do có món chưa ra \nVui lòng xác nhận lại trạng thái món ăn!");
         }
         Bill bill = new Bill();

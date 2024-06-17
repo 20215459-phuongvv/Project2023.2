@@ -27,7 +27,7 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(messages.getString("user.validate.not-found")));
         return org.springframework.security.core.userdetails.User
                 .withUsername(username)
@@ -37,7 +37,7 @@ public class UserService implements UserDetailsService {
     }
     public AuthResponseDTO signIn(AuthRequestDTO authRequestDTO) throws BadCredentialsException, BadRequestException {
         AuthResponseDTO authResponseDTO = new AuthResponseDTO();
-        String username = authRequestDTO.getEmail();
+        String username = authRequestDTO.getUsername();
         String password = authRequestDTO.getPassword();
         Authentication authentication = authenticate(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -55,7 +55,7 @@ public class UserService implements UserDetailsService {
         if(!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException(messages.getString("password.validate.invalid"));
         }
-        User user = userRepository.findByEmail(username).get();
+        User user = userRepository.findByUsername(username).get();
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

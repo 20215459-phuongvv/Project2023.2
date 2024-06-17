@@ -3,8 +3,11 @@ package com.project.ezimenu.controllers;
 import com.project.ezimenu.dtos.OrderDTO.OrderResponseDTO;
 import com.project.ezimenu.entities.Message;
 import com.project.ezimenu.entities.Order;
+import com.project.ezimenu.entities.Table;
 import com.project.ezimenu.exceptions.NotFoundException;
+import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.OrderService;
+import com.project.ezimenu.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,8 @@ public class OrderController {
     private MessageController messageController;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private TableRepository tableRepository;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     @RequestMapping(path = "admin/orders", method = RequestMethod.GET)
     public ResponseEntity<?> getAllOrders() throws NotFoundException {
@@ -48,8 +53,10 @@ public class OrderController {
     public ResponseEntity<?> sendOrder(@PathVariable Long tableId) throws NotFoundException {
         LocalDateTime currentDateTime = LocalDateTime.now();
         Order newOrder = orderService.sendOrder(tableId);
+        Table table = tableRepository.findByTableIdAndStatus(tableId, Constants.ENTITY_STATUS.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("Bàn không tồn tại"));
         Message message = new Message();
-        message.setText(currentDateTime.format(formatter) + ": " + "Bàn " + tableId + " đã tạo order mới!");
+        message.setText(currentDateTime.format(formatter) + ": " + "Bàn " + table.getTableName()  + " đã tạo order mới!");
         message.setTo("admin");
         messageController.sendToSpecificUser(message);
         return new ResponseEntity<>(newOrder, HttpStatus.CREATED);

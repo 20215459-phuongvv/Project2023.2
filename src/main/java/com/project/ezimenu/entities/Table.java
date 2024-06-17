@@ -16,7 +16,7 @@ public class Table {
     @Column(name = "tableId")
     private long tableId;
 
-    @Column(name = "tableName", unique = true)
+    @Column(name = "tableName")
     private String tableName;
 
     @Column(name = "tableStatus")

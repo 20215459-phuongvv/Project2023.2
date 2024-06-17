@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "bills")
@@ -26,7 +27,7 @@ public class Bill {
     @Column(name = "status")
     private Short status;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "orderId")
     @JsonIgnoreProperties("bill")
     private Order order;
@@ -34,4 +35,17 @@ public class Bill {
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("bill")
     private List<BillItem> billItems;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bill bill = (Bill) o;
+        return billId == bill.billId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(billId);
+    }
 }

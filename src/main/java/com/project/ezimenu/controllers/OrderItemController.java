@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class OrderItemController {
@@ -29,6 +32,7 @@ public class OrderItemController {
     @Autowired
     private MessageController messageController;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private BlockingQueue<String> orderStatusQueue = new LinkedBlockingQueue<>();
     @PostMapping("orders/{orderId}/items")
     public ResponseEntity<?> addOrderItem(@PathVariable Long orderId,
                                           @RequestBody OrderItemRequestDTO orderItemRequestDTO)
@@ -56,8 +60,13 @@ public class OrderItemController {
     public ResponseEntity<?> updateOrderItemStatus(@PathVariable Long orderId,
                                                    @PathVariable Long orderItemId)
             throws NotFoundException {
-        Order updatedOrder = orderItemService.updateOrderItemStatus(orderId, orderItemId);
-        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        OrderItem updatedOrderItem = orderItemService.updateOrderItemStatus(orderId, orderItemId);
+        orderStatusQueue.offer(updatedOrderItem.getDishStatus());
+        return new ResponseEntity<>(updatedOrderItem, HttpStatus.OK);
+    }
+    @GetMapping("/orders/updates")
+    public String getOrderUpdates() throws InterruptedException {
+        return orderStatusQueue.poll(5, TimeUnit.SECONDS);
     }
     @PostMapping("orders/{orderId}/items/{orderItemId}/request")
     public ResponseEntity<?> sendOrderItemRequest(@PathVariable Long orderId,
@@ -68,10 +77,10 @@ public class OrderItemController {
         if(orderItem.getOrder().getOrderId() != order.getOrderId()){
             throw new NotFoundException("Món này không nằm trong order " + orderId + "!");
         }
-        Notification notification = notificationService.addNotification(order.getTable().getTableId(), "Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu món " + orderItem.getDish().getDishName() + " lên trước.");
+        Notification notification = notificationService.addNotification(order.getTable().getTableId(), "Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu hỗ trợ cho món " + orderItem.getDish().getDishName() + ".");
         Message request = new Message();
         request.setTo("admin");
-        request.setText(LocalDateTime.now().format(formatter) + ": Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu món " + orderItem.getDish().getDishName() + " lên trước.");
+        request.setText(LocalDateTime.now().format(formatter) + ": Khách ở bàn " + order.getTable().getTableName() + " đang yêu cầu hỗ trợ cho món " + orderItem.getDish().getDishName() + ".");
         messageController.sendToSpecificUser(request);
         return new ResponseEntity<>(notification, HttpStatus.OK);
     }

@@ -3,15 +3,9 @@ package com.project.ezimenu.services;
 import com.project.ezimenu.dtos.OrderDTO.OrderResponseDTO;
 import com.project.ezimenu.dtos.OrderItemDTO.OrderItemRequestDTO;
 import com.project.ezimenu.dtos.OrderItemDTO.OrderItemResponseDTO;
-import com.project.ezimenu.entities.Dish;
-import com.project.ezimenu.entities.Order;
-import com.project.ezimenu.entities.OrderItem;
-import com.project.ezimenu.entities.Table;
+import com.project.ezimenu.entities.*;
 import com.project.ezimenu.exceptions.NotFoundException;
-import com.project.ezimenu.repositories.DishRepository;
-import com.project.ezimenu.repositories.OrderItemRepository;
-import com.project.ezimenu.repositories.OrderRepository;
-import com.project.ezimenu.repositories.TableRepository;
+import com.project.ezimenu.repositories.*;
 import com.project.ezimenu.services.interfaces.IOrderService;
 import com.project.ezimenu.utils.Constants;
 import org.modelmapper.ModelMapper;
@@ -31,6 +25,8 @@ public class OrderService implements IOrderService {
     private OrderItemRepository orderItemRepository;
     @Autowired
     private TableRepository tableRepository;
+    @Autowired
+    private BillRepository billRepository;
     @Autowired
     private ModelMapper modelMapper;
     private Sort sortByTimeAsc = Sort.by(Sort.Direction.ASC, "orderTime");
@@ -108,6 +104,11 @@ public class OrderService implements IOrderService {
             throw new NotFoundException("Bàn này chưa có order để gửi đi!");
         }
         Order order = table.getOrders().get(table.getOrders().size() - 1);
+        if (order.getBill() != null) {
+            Bill bill = order.getBill();
+            bill.setOrder(null);
+            billRepository.save(bill);
+        }
         order.setOrderTime(LocalDateTime.now());
         order.setOrderStatus("Đang ra món");
         order.setStatus(Constants.ENTITY_STATUS.ACTIVE);

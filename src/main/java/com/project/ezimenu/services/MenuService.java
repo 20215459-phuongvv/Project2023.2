@@ -44,6 +44,7 @@ public class MenuService implements IMenuService {
                 .map(menu -> {
                     MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
                     List<DishResponseDTO> dishResponseDTOs = menu.getDishes().stream()
+                            .filter(dish -> dish.getStatus() == Constants.ENTITY_STATUS.ACTIVE)
                             .map(dish -> modelMapper.map(dish, DishResponseDTO.class))
                             .collect(Collectors.toList());
                     menuResponseDTO.setDishResponseDTO(dishResponseDTOs);
@@ -69,6 +70,7 @@ public class MenuService implements IMenuService {
                 .map(menu -> {
                     MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
                     List<DishResponseDTO> dishResponseDTOs = menu.getDishes().stream()
+                            .filter(dish -> dish.getStatus() == Constants.ENTITY_STATUS.ACTIVE)
                             .map(dish -> modelMapper.map(dish, DishResponseDTO.class))
                             .collect(Collectors.toList());
                     menuResponseDTO.setDishResponseDTO(dishResponseDTOs);
@@ -82,6 +84,7 @@ public class MenuService implements IMenuService {
                 .orElseThrow(() -> new NotFoundException("Không thể tìm thấy thực đơn có id: " + menuId));
         MenuResponseDTO menuResponseDTO = modelMapper.map(menu, MenuResponseDTO.class);
         List<DishResponseDTO> dishResponseDTOs = menu.getDishes().stream()
+                .filter(dish -> dish.getStatus() == Constants.ENTITY_STATUS.ACTIVE)
                 .map(dish -> modelMapper.map(dish, DishResponseDTO.class))
                 .collect(Collectors.toList());
         menuResponseDTO.setDishResponseDTO(dishResponseDTOs);
