@@ -9,6 +9,9 @@ import com.project.ezimenu.repositories.TableRepository;
 import com.project.ezimenu.services.OrderService;
 import com.project.ezimenu.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +30,12 @@ public class OrderController {
     private TableRepository tableRepository;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     @RequestMapping(path = "admin/orders", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllOrders() throws NotFoundException {
-        List<OrderResponseDTO> orders = orderService.getAllOrders();
-        if(orders.isEmpty()){
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws NotFoundException {
+        Pageable pageable = PageRequest.of(page, size);
+        List<OrderResponseDTO> orders = orderService.getAllOrders(pageable);
+        if (orders.isEmpty()) {
             throw new NotFoundException("Hiện không có order nào!");
         }
         return ResponseEntity.ok(orders);

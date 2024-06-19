@@ -10,6 +10,8 @@ import com.project.ezimenu.services.interfaces.IOrderService;
 import com.project.ezimenu.utils.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
@@ -30,8 +32,8 @@ public class OrderService implements IOrderService {
     @Autowired
     private ModelMapper modelMapper;
     private Sort sortByTimeAsc = Sort.by(Sort.Direction.ASC, "orderTime");
-    public List<OrderResponseDTO> getAllOrders() {
-        List<Order> orders = orderRepository.findByStatusOrderByOrderTimeAsc(Constants.ENTITY_STATUS.ACTIVE);
+    public List<OrderResponseDTO> getAllOrders(Pageable pageable) {
+        List<Order> orders = orderRepository.findByStatusOrderByOrderTimeDesc(Constants.ENTITY_STATUS.ACTIVE, pageable).getContent();
         return orders.stream()
                 .map(order -> {
                     OrderResponseDTO orderResponseDTO = modelMapper.map(order, OrderResponseDTO.class);
