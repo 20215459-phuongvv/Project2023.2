@@ -1,5 +1,6 @@
 package com.project.ezimenu.controllers;
 
+import com.project.ezimenu.dtos.OrderDTO.OrderListResponseDTO;
 import com.project.ezimenu.dtos.OrderDTO.OrderResponseDTO;
 import com.project.ezimenu.entities.Message;
 import com.project.ezimenu.entities.Order;
@@ -34,11 +35,8 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) throws NotFoundException {
         Pageable pageable = PageRequest.of(page, size);
-        List<OrderResponseDTO> orders = orderService.getAllOrders(pageable);
-        if (orders.isEmpty()) {
-            throw new NotFoundException("Hiện không có order nào!");
-        }
-        return ResponseEntity.ok(orders);
+        OrderListResponseDTO response = orderService.getAllOrders(pageable);
+        return ResponseEntity.ok(response);
     }
     @GetMapping("/admin/orders/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId) throws NotFoundException {

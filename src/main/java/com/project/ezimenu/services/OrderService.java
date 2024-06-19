@@ -1,5 +1,6 @@
 package com.project.ezimenu.services;
 
+import com.project.ezimenu.dtos.OrderDTO.OrderListResponseDTO;
 import com.project.ezimenu.dtos.OrderDTO.OrderResponseDTO;
 import com.project.ezimenu.dtos.OrderItemDTO.OrderItemRequestDTO;
 import com.project.ezimenu.dtos.OrderItemDTO.OrderItemResponseDTO;
@@ -32,9 +33,10 @@ public class OrderService implements IOrderService {
     @Autowired
     private ModelMapper modelMapper;
     private Sort sortByTimeAsc = Sort.by(Sort.Direction.ASC, "orderTime");
-    public List<OrderResponseDTO> getAllOrders(Pageable pageable) {
+    public OrderListResponseDTO getAllOrders(Pageable pageable) {
+        int total = orderRepository.findAll().size();
         List<Order> orders = orderRepository.findByStatusOrderByOrderTimeDesc(Constants.ENTITY_STATUS.ACTIVE, pageable).getContent();
-        return orders.stream()
+        List<OrderResponseDTO> orderResponseDTOList =  orders.stream()
                 .map(order -> {
                     OrderResponseDTO orderResponseDTO = modelMapper.map(order, OrderResponseDTO.class);
                     List<OrderItemResponseDTO> orderItemResponseDTOS = order.getOrderItems().stream()
@@ -49,6 +51,11 @@ public class OrderService implements IOrderService {
                     return orderResponseDTO;
                 })
                 .collect(Collectors.toList());
+        return OrderListResponseDTO
+                .builder()
+                .orderResponseDTOList(orderResponseDTOList)
+                .total(total)
+                .build();
     }
 
     public OrderResponseDTO getOrderResponseById(Long orderId) throws NotFoundException {
