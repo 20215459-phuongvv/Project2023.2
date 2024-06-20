@@ -90,8 +90,8 @@ public class OrderItemService implements IOrderItemService {
         } else {
             order.setOrderStatus("Đang ra món");
         }
-        orderItemRepository.save(orderItem);
-        return orderItem;
+        orderRepository.save(order);
+        return orderItemRepository.save(orderItem);
     }
     public Order deleteOrderItem(Long orderId, Long orderItemId) throws NotFoundException, BadRequestException {
         Order order = orderRepository.findById(orderId)

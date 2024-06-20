@@ -18,9 +18,6 @@ public class NotificationController {
     @RequestMapping(path = "/admin/notifications/tables/{tableId}", method = RequestMethod.GET)
     public ResponseEntity<?> getTableNotifications(@PathVariable Long tableId) throws NotFoundException {
         List<NotificationResponseDTO> notifications = notificationService.getNotificationsByTableId(tableId);
-        if(notifications.isEmpty()){
-            return new ResponseEntity<>("Bàn này không có thông báo nào!", HttpStatus.NOT_FOUND);
-        }
         return ResponseEntity.ok(notifications);
     }
     @PostMapping("/notifications/{tableId}")
